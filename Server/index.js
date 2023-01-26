@@ -7,10 +7,12 @@ import users from "./routes/user.js";
 import rooms from "./routes/rooms.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import path, { dirname } from "path";
 dotenv.config();
 const app = express();
 
-
+const dirName = path.dirname("");
+const buildPath = path.join(dirName,"../Client/build");
 /* DATABASE */
 const mongoUrl = process.env.MONGO;
 mongoose.connect(mongoUrl);
@@ -30,12 +32,22 @@ connection.on('disconnected', () => {
 
 /* MIDDLEWARES */
 app.use(cors())
+app.use(express.static(buildPath));
 app.use(cookieParser())
 app.use(express.json());
 app.use("/api/auth", authRoute);
 app.use("/api/users", users);
 app.use("/api/hotels", hotels);
 app.use("/api/rooms", rooms);
+app.get("/",(req,res)=>{
+res.sendFile(
+    path.join(__dirname,"../Client/build/index.html"),
+(err)=>{
+    if(err){
+        res.status(500).send(err);
+    }
+})
+})
 
 
 // error handler
